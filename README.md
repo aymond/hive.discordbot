@@ -12,6 +12,6 @@ go run discordbot.go -t <discordtoken>
 
 
 
-## Runnig in Kubernetes
+## Running in Kubernetes
 
 
