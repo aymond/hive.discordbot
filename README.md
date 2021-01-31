@@ -1,3 +1,5 @@
-# Factorio discord bot
+# Discord bot
 
-Listening to the Factorio Announcements on Discord to be alerted when a new release is published.
+Bot for The Quaratined. Learning golang, learning discord bots and other random things.
+
+
