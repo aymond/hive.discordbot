@@ -92,6 +92,11 @@ func messageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Content == "pong" {
 		session.ChannelMessageSend(m.ChannelID, "Ping!")
 	}
+
+	if m.Content == "complex" {
+
+		complexMessage := discordgo.MessageEmbed()
+	}
 }
 
 func answerHello(session *discordgo.Session, m *discordgo.MessageCreate) {
