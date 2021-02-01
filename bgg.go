@@ -29,24 +29,24 @@ type Items struct {
 	Text       string   `xml:",chardata"`
 	Total      string   `xml:"total,attr"`
 	Termsofuse string   `xml:"termsofuse,attr"`
-	Items      []Item   `xml:"item"`
+	Items      []item   `xml:"item"`
 }
 
-type Item struct {
+type item struct {
 	Text          string          `xml:",chardata"`
 	Type          string          `xml:"type,attr"`
 	ID            string          `xml:"id,attr"`
-	Names         []Name          `xml:"name"`
-	YearPublished []Yearpublished `xml:"yearpublished"`
+	Names         []name          `xml:"name"`
+	YearPublished []yearpublished `xml:"yearpublished"`
 }
 
-type Name struct {
+type name struct {
 	Text  string `xml:",chardata"`
 	Type  string `xml:"type,attr"`
 	Value string `xml:"value,attr"`
 }
 
-type Yearpublished struct {
+type yearpublished struct {
 	Text  string `xml:",chardata"`
 	Value string `xml:"value,attr"`
 }
