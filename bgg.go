@@ -69,11 +69,11 @@ func getSearchXML(url string) Items {
 	return v
 }
 
-// SearchItems Used to search for items of given type. For strict searches exact should be true.
+// BGGSearchItems Used to search for items of given type. For strict searches exact should be true.
 // Query: Returns all types of Items that match SEARCH_QUERY
 // Item Types: rpgitem, videogame, boardgame, boardgameaccessory or boardgameexpansion
 // Exact: Limit results to items that match the query exactly
-func SearchItems(query string, gametype string, exact bool) Items {
+func BGGSearchItems(query string, gametype string, exact bool) Items {
 	search := BASEURL + "search?query=" + query
 	if gametype != "" {
 		search = search + "&type=" + gametype

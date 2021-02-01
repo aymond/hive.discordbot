@@ -95,7 +95,16 @@ func messageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if m.Content == "complex" {
 
-		complexMessage := discordgo.MessageEmbed()
+		/* complexMessage := embedMessage()
+		session.ChannelMessageSendComplex(m.ChannelID, complexMessage) */
+		complexMessage := discordgo.MessageEmbed{
+
+			Title:       "New Post",
+			Description: "Test Description",
+			URL:         "https://boardgamegeek.com/boardgame/13",
+		}
+		//session.ChannelMessageSend(m.ChannelID, data complexMessage)
+		session.ChannelMessageSendEmbed(m.ChannelID, &complexMessage)
 	}
 }
 
@@ -145,7 +154,12 @@ func answerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 	case "find":
 		session.ChannelMessageSend(m.ChannelID, "Finding "+m.Author.Username)
 	case "search":
-		results := SearchItems(parts[2], "boardgame", false)
+		searchstring := strings.Join(parts[2:], "+")
+		results := BGGSearchItems(searchstring, "boardgame", false)
+		session.ChannelMessageSend(m.ChannelID, "Found "+results.Total+" results.")
+	case "exact":
+		searchstring := strings.Join(parts[2:], "+")
+		results := BGGSearchItems(searchstring, "boardgame", true)
 		session.ChannelMessageSend(m.ChannelID, "Found "+results.Total+" results.")
 	default:
 		session.ChannelMessageSend(m.ChannelID, "Hello "+m.Author.Username)
