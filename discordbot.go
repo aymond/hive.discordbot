@@ -156,7 +156,24 @@ func answerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 	case "search":
 		searchstring := strings.Join(parts[2:], "+")
 		results := BGGSearchItems(searchstring, "boardgame", false)
-		session.ChannelMessageSend(m.ChannelID, "Found "+results.Total+" results.")
+		switch results.Total {
+		case "0":
+			session.ChannelMessageSend(m.ChannelID, "No results found.")
+		case "1":
+			complexMessage := discordgo.MessageEmbed{
+
+				Title:       results.Items[0].Names[0].Value,
+				Description: results.Items[0].Names[0].Value,
+				URL:         "https://boardgamegeek.com/boardgame/13",
+			}
+			session.ChannelMessageSendEmbed(m.ChannelID, &complexMessage)
+
+		case "2":
+			session.ChannelMessageSend(m.ChannelID, "Found "+results.Total+" results.")
+		default:
+			session.ChannelMessageSend(m.ChannelID, "Found "+results.Total+" results. Please refine the search.")
+		}
+
 	case "exact":
 		searchstring := strings.Join(parts[2:], "+")
 		results := BGGSearchItems(searchstring, "boardgame", true)
