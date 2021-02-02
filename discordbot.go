@@ -155,29 +155,48 @@ func answerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 		session.ChannelMessageSend(m.ChannelID, "Finding "+m.Author.Username)
 	case "search":
 		searchstring := strings.Join(parts[2:], "+")
-		results := BGGSearchItems(searchstring, "boardgame", false)
+		results, searchurl := BGGSearchItems(searchstring, "boardgame", false)
 		switch results.Total {
 		case "0":
 			session.ChannelMessageSend(m.ChannelID, "No results found.")
 		case "1":
+			gameID := results.Items[0].ID
+			meta := BGGGetItemPage("https://boardgamegeek.com/boardgame/" + gameID)
+			//thumbnail := BGGGetThumbnail(meta.Image)
 			complexMessage := discordgo.MessageEmbed{
 
 				Title:       results.Items[0].Names[0].Value,
-				Description: results.Items[0].Names[0].Value,
-				URL:         "https://boardgamegeek.com/boardgame/13",
+				Description: meta.Description,
+				URL:         "https://boardgamegeek.com/boardgame/" + gameID,
+				Thumbnail:   &discordgo.MessageEmbedThumbnail{URL: meta.Image},
 			}
+
 			session.ChannelMessageSendEmbed(m.ChannelID, &complexMessage)
 
 		case "2":
 			session.ChannelMessageSend(m.ChannelID, "Found "+results.Total+" results.")
 		default:
-			session.ChannelMessageSend(m.ChannelID, "Found "+results.Total+" results. Please refine the search.")
+			//session.ChannelMessageSend(m.ChannelID, "Found "+results.Total+" results. Please refine the search.")
+			//gameID := results.Items[0].ID
+			complexMessage := discordgo.MessageEmbed{
+
+				Title: "Found " + results.Total + " results.",
+				URL:   searchurl,
+			}
+			session.ChannelMessageSendEmbed(m.ChannelID, &complexMessage)
 		}
 
 	case "exact":
 		searchstring := strings.Join(parts[2:], "+")
-		results := BGGSearchItems(searchstring, "boardgame", true)
-		session.ChannelMessageSend(m.ChannelID, "Found "+results.Total+" results.")
+		results, _ := BGGSearchItems(searchstring, "boardgame", true)
+		gameID := results.Items[0].ID
+		complexMessage := discordgo.MessageEmbed{
+
+			Title:       results.Items[0].Names[0].Value,
+			Description: results.Items[0].Names[0].Value,
+			URL:         "https://boardgamegeek.com/boardgame/" + gameID,
+		}
+		session.ChannelMessageSendEmbed(m.ChannelID, &complexMessage)
 	default:
 		session.ChannelMessageSend(m.ChannelID, "Hello "+m.Author.Username)
 	}
