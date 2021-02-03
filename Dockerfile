@@ -20,4 +20,4 @@ RUN go mod download
 RUN go build -o main .
 ## Our start command which kicks off
 ## our newly created binary executable
-ENTRYPOINT ["main", "-t", ${TOKEN}]
+CMD /app/main -t ${TOKEN}

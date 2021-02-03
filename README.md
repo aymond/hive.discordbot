@@ -8,7 +8,7 @@ Bot for The Quaratined. Learning golang, learning discord bots and other random 
 go run discordbot.go -t <discordtoken> 
 ```
 
-### vscode
+### vscode debug
 
 For those also learning, this is my launch.json
 
@@ -31,6 +31,15 @@ For those also learning, this is my launch.json
 ```
 
 ## Running in docker
+
+To build and run locally.
+
+``` shell
+docker build --pull --rm -f "Dockerfile" -t hive:latest "."
+docker run -e TOKEN=<bot token> hive:latest
+```
+
+
 
 
 
