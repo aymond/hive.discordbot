@@ -3,8 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"math/rand"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -91,6 +94,10 @@ func messageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 	// If the message is "pong" reply with "Ping!"
 	if m.Content == "pong" {
 		session.ChannelMessageSend(m.ChannelID, "Ping!")
+	}
+
+	if strings.HasPrefix(m.Content, "!random") {
+		randomPlayer(session, m)
 	}
 
 	if m.Content == "complex" {
@@ -200,4 +207,31 @@ func answerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 	default:
 		session.ChannelMessageSend(m.ChannelID, "Hello "+m.Author.Username)
 	}
+}
+
+func randomPlayer(session *discordgo.Session, m *discordgo.MessageCreate) {
+	// Find the channel that the message came from.
+	c, err := session.State.Channel(m.ChannelID)
+	if err != nil {
+		// Could not find channel.
+		return
+	}
+
+	// Find the guild for that channel.
+	_, err = session.State.Guild(c.GuildID)
+	if err != nil {
+		// Could not find guild.
+		return
+	}
+	parts := strings.Split(m.Content, " ")
+	if len(parts) != 2 {
+		session.ChannelMessageSend(m.ChannelID, "Should have a single number e.g. !random 3 "+m.Author.Username)
+		return
+	}
+	min := 1
+	max := parts[1]
+	maxint, _ := strconv.Atoi(max)
+	secretNumber := rand.Intn(maxint-min) + min
+	log.Println("The secret number is", secretNumber)
+	session.ChannelMessageSend(m.ChannelID, "Random Number: "+strconv.Itoa(secretNumber))
 }
