@@ -122,7 +122,8 @@ func answerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 		session.ChannelMessageSend(m.ChannelID, "Finding "+m.Author.Username)
 	case "search":
 		searchstring := strings.Join(parts[2:], "+")
-		results, searchurl := BGGSearchItems(searchstring, "boardgame", false)
+		exact := true
+		results, searchurl := BGGSearchItems(searchstring, "boardgame", exact)
 		switch results.Total {
 		case "0":
 			session.ChannelMessageSend(m.ChannelID, "No results found.")
@@ -155,13 +156,17 @@ func answerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 
 	case "exact":
 		searchstring := strings.Join(parts[2:], "+")
-		results, _ := BGGSearchItems(searchstring, "boardgame", true)
+		exact := true
+		results, _ := BGGSearchItems(searchstring, "boardgame", exact)
 		gameID := results.Items[0].ID
+
+		meta := BGGGetItemPage("https://boardgamegeek.com/boardgame/" + gameID)
 		complexMessage := discordgo.MessageEmbed{
 
 			Title:       results.Items[0].Names[0].Value,
-			Description: results.Items[0].Names[0].Value,
+			Description: meta.Description,
 			URL:         "https://boardgamegeek.com/boardgame/" + gameID,
+			Thumbnail:   &discordgo.MessageEmbedThumbnail{URL: meta.Image},
 		}
 		session.ChannelMessageSendEmbed(m.ChannelID, &complexMessage)
 	default:
@@ -176,10 +181,13 @@ func randomPlayer(session *discordgo.Session, m *discordgo.MessageCreate) {
 		session.ChannelMessageSend(m.ChannelID, "Should have a single number e.g. !random 3 "+m.Author.Username)
 		return
 	}
-	min := 1
-	max := parts[1]
-	maxint, _ := strconv.Atoi(max)
-	secretNumber := rand.Intn(maxint-min) + min
-	log.Println("The secret number is", secretNumber)
-	session.ChannelMessageSend(m.ChannelID, "Random Number: "+strconv.Itoa(secretNumber))
+	max, _ := strconv.Atoi(parts[1])
+	// Choose random number between 1 and max
+	randomNumber := rand.Intn(max-1) + 1
+	log.Println("The secret number is", randomNumber)
+	session.ChannelMessageSend(m.ChannelID, "Random Number: "+strconv.Itoa(randomNumber))
+}
+
+func sendMessageEmbed() {
+
 }
