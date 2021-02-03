@@ -11,6 +11,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/aymond/bgg"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -123,14 +124,13 @@ func answerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 	case "search":
 		searchstring := strings.Join(parts[2:], "+")
 		exact := true
-		results, searchurl := BGGSearchItems(searchstring, "boardgame", exact)
+		results, searchurl := bgg.SearchItems(searchstring, "boardgame", exact)
 		switch results.Total {
 		case "0":
 			session.ChannelMessageSend(m.ChannelID, "No results found.")
 		case "1":
 			gameID := results.Items[0].ID
-			meta := BGGGetItemPage("https://boardgamegeek.com/boardgame/" + gameID)
-			//thumbnail := BGGGetThumbnail(meta.Image)
+			meta := bgg.GetItemPage("https://boardgamegeek.com/boardgame/" + gameID)
 			complexMessage := discordgo.MessageEmbed{
 
 				Title:       results.Items[0].Names[0].Value,
@@ -157,10 +157,10 @@ func answerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 	case "exact":
 		searchstring := strings.Join(parts[2:], "+")
 		exact := true
-		results, _ := BGGSearchItems(searchstring, "boardgame", exact)
+		results, _ := bgg.SearchItems(searchstring, "boardgame", exact)
 		gameID := results.Items[0].ID
 
-		meta := BGGGetItemPage("https://boardgamegeek.com/boardgame/" + gameID)
+		meta := bgg.GetItemPage("https://boardgamegeek.com/boardgame/" + gameID)
 		complexMessage := discordgo.MessageEmbed{
 
 			Title:       results.Items[0].Names[0].Value,
@@ -189,5 +189,6 @@ func randomPlayer(session *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func sendMessageEmbed() {
-
+	test := bgg.BASEURL
+	log.Println(test)
 }
