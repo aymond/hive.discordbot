@@ -86,6 +86,10 @@ func messageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 		answerBgg(session, m)
 	}
 
+	if strings.HasPrefix(m.Content, "!random") {
+		randomPlayer(session, m)
+	}
+
 	// If the message is "ping" reply with "Pong!"
 	if m.Content == "ping" {
 		session.ChannelMessageSend(m.ChannelID, "Pong!")
@@ -96,39 +100,9 @@ func messageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 		session.ChannelMessageSend(m.ChannelID, "Ping!")
 	}
 
-	if strings.HasPrefix(m.Content, "!random") {
-		randomPlayer(session, m)
-	}
-
-	if m.Content == "complex" {
-
-		/* complexMessage := embedMessage()
-		session.ChannelMessageSendComplex(m.ChannelID, complexMessage) */
-		complexMessage := discordgo.MessageEmbed{
-
-			Title:       "New Post",
-			Description: "Test Description",
-			URL:         "https://boardgamegeek.com/boardgame/13",
-		}
-		//session.ChannelMessageSend(m.ChannelID, data complexMessage)
-		session.ChannelMessageSendEmbed(m.ChannelID, &complexMessage)
-	}
 }
 
 func answerHello(session *discordgo.Session, m *discordgo.MessageCreate) {
-	// Find the channel that the message came from.
-	c, err := session.State.Channel(m.ChannelID)
-	if err != nil {
-		// Could not find channel.
-		return
-	}
-
-	// Find the guild for that channel.
-	_, err = session.State.Guild(c.GuildID)
-	if err != nil {
-		// Could not find guild.
-		return
-	}
 
 	session.ChannelMessageSend(m.ChannelID, "Hello "+m.Author.Username)
 }
@@ -136,20 +110,6 @@ func answerHello(session *discordgo.Session, m *discordgo.MessageCreate) {
 func answerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// https://boardgamegeek.com/wiki/page/BGG_XML_API2
-
-	// Find the channel that the message came from.
-	c, err := session.State.Channel(m.ChannelID)
-	if err != nil {
-		// Could not find channel.
-		return
-	}
-
-	// Find the guild for that channel.
-	_, err = session.State.Guild(c.GuildID)
-	if err != nil {
-		// Could not find guild.
-		return
-	}
 
 	parts := strings.Split(m.Content, " ")
 	if len(parts) < 2 {
@@ -210,19 +170,7 @@ func answerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func randomPlayer(session *discordgo.Session, m *discordgo.MessageCreate) {
-	// Find the channel that the message came from.
-	c, err := session.State.Channel(m.ChannelID)
-	if err != nil {
-		// Could not find channel.
-		return
-	}
 
-	// Find the guild for that channel.
-	_, err = session.State.Guild(c.GuildID)
-	if err != nil {
-		// Could not find guild.
-		return
-	}
 	parts := strings.Split(m.Content, " ")
 	if len(parts) != 2 {
 		session.ChannelMessageSend(m.ChannelID, "Should have a single number e.g. !random 3 "+m.Author.Username)
