@@ -100,7 +100,6 @@ func messageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Content == "pong" {
 		session.ChannelMessageSend(m.ChannelID, "Ping!")
 	}
-
 }
 
 func answerHello(session *discordgo.Session, m *discordgo.MessageCreate) {
@@ -109,9 +108,6 @@ func answerHello(session *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func answerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
-
-	// https://boardgamegeek.com/wiki/page/BGG_XML_API2
-
 	parts := strings.Split(m.Content, " ")
 	if len(parts) < 2 {
 		session.ChannelMessageSend(m.ChannelID, "Should have had three parts "+m.Author.Username)
@@ -144,8 +140,6 @@ func answerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 		case "2":
 			session.ChannelMessageSend(m.ChannelID, "Found "+results.Total+" results.")
 		default:
-			//session.ChannelMessageSend(m.ChannelID, "Found "+results.Total+" results. Please refine the search.")
-			//gameID := results.Items[0].ID
 			complexMessage := discordgo.MessageEmbed{
 
 				Title: "Found " + results.Total + " results.",
@@ -186,9 +180,4 @@ func randomPlayer(session *discordgo.Session, m *discordgo.MessageCreate) {
 	randomNumber := rand.Intn(max-1) + 1
 	log.Println("The secret number is", randomNumber)
 	session.ChannelMessageSend(m.ChannelID, "Random Number: "+strconv.Itoa(randomNumber))
-}
-
-func sendMessageEmbed() {
-	test := bgg.BASEURL
-	log.Println(test)
 }
