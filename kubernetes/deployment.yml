@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: discordbot
+  labels:
+    name: discordbot
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: discordbot
+  namespace: discordbot
+  labels:
+    purpose: demonstrate-discordbot
+spec:  
+  containers:
+  - name: discordbot
+    image: aymon/hive.discordbot:latest
+    env:
+    - name: TOKEN
+      value: ""
