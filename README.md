@@ -2,6 +2,8 @@
 
 Bot for The Quarantined. Learning golang, learning discord bots and other random things.
 
+Uses https://github.com/aymond/bgg which provides a package for querying the BGG XML API
+
 ## Running as local binary
 
 ``` bash
