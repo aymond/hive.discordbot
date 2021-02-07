@@ -34,7 +34,7 @@ $(K8S_BUILD_DIR):
 help: ## prints out the menu of command options
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-build-k8s: $(K8S_BUILD_DIR)
+build-k8s: $(K8S_BUILD_DIR) check-token
 	@for file in $(K8S_FILES); do \
 		mkdir -p `dirname "$(K8S_BUILD_DIR)/$$file"` ; \
 		$(SHELL_EXPORT) envsubst <$(K8S_DIR)/$$file >$(K8S_BUILD_DIR)/$$file ;\
@@ -43,4 +43,9 @@ build-k8s: $(K8S_BUILD_DIR)
 deploy: build-k8s push-docker # deploy
 	kubectl apply -f $(K8S_BUILD_DIR)
 
-.PHONY: default help build_in_docker build build-k8s deploy
+check-token:
+ifndef DISCORDBOTTOKEN
+	$(error DISCORDBOTTOKEN is undefined)
+endif
+
+.PHONY: default help build_in_docker build build-k8s deploy check-token

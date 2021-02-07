@@ -26,4 +26,4 @@ spec:
     image: aymon/hive.discordbot:latest
     env:
     - name: TOKEN
-      value: ""
+      value: "${DISCORDBOTTOKEN}"
