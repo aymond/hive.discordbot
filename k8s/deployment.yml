@@ -13,8 +13,16 @@ metadata:
   labels:
     purpose: demonstrate-discordbot
 spec:  
+  
   containers:
   - name: discordbot
+    resources:
+      requests:
+        memory: "8Mi"
+        cpu: "10m"
+      limits:
+        memory: "20Mi"
+        cpu: "100m"
     image: aymon/hive.discordbot:latest
     env:
     - name: TOKEN
