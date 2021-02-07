@@ -45,7 +45,7 @@ deploy: build-k8s push-docker # deploy
 
 check-token:
 ifndef DISCORDBOTTOKEN
-	$(error DISCORDBOTTOKEN is undefined)
+	$(error DISCORDBOTTOKEN is undefined. export DISCORDBOTTOKEN=<discordbottoken>)
 endif
 
 .PHONY: default help build_in_docker build build-k8s deploy check-token

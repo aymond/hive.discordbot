@@ -1,11 +1,13 @@
 # Discord bot
 
-Bot for The Quarantined. Learning golang, learning discord bots and other random things.
+Discord Bot for The Quarantined. 
+
+Learning golang, learning discord bots and other random things.
 
 ## Running as local binary
 
 ``` bash
-go run discordbot.go -t <discordtoken> 
+go run discordbot.go -t <discordbottoken> 
 ```
 
 ### vscode debug
@@ -23,7 +25,7 @@ For those also learning, this is my launch.json
             "mode": "debug",
             "program": "${workspaceFolder}",
             "args": [
-                "-t", "<bottokenhere>"
+                "-t", "<discordbottoken>"
             ]
         }
     ]
@@ -41,15 +43,23 @@ docker run -e TOKEN=<bot token> hive:latest
 
 ## Running in Kubernetes
 
-Makefile will generate the `deployment.yml` in the `build_k8s` folder. 
-
-```
-make build-k8s DISCORDBOTTOKEN=<token for discord bot>
-```
+The makefile will generate the `deployment.yml` in the `build_k8s` folder, and requires the DISCORDBOTTOKEN environment variable to be set.
 
 e.g.
 
 ``` bash
 make build-k8s DISCORDBOTTOKEN=562ff88.caa3e47a7941f8.10a1ee1951-xx
+```
+
+or
+
+``` bash
+export DISCORDBOTTOKEN=562ff88.caa3e47a7941f8.10a1ee1951-xx
+make build-k8s
+```
+
+and apply the deployment spec
+
+``` bash
 kubectl apply -f ./build_k8s/deployment.yml
 ```
