@@ -2,3 +2,6 @@
 __debug_bin
 bin
 build_k8s
+.terraform*
+secret.auto.tfvars
+*.tfstate*

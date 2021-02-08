@@ -65,3 +65,12 @@ and apply the deployment spec
 ``` bash
 kubectl apply -f ./build_k8s/deployment.yml
 ```
+
+### Terraform
+
+Rename `./terraform/secrets.auto.tfvars.example` to `./terraform/secrets.auto.tfvars` and update the `bottoken` secret.
+
+``` terraform
+terraform init
+terraform apply
+```
