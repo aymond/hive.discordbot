@@ -13,7 +13,7 @@ variable "namespace" {
 variable "configpath" {
   default     = "~/.kube/prod.config"
   description = "Path to Kubeconfig."
-  type       = "string"
+  type       = string
 }
 
 provider "kubernetes" {
