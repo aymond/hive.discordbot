@@ -23,7 +23,7 @@ spec:
       limits:
         memory: "20Mi"
         cpu: "100m"
-    image: aymon/hive.discordbot:latest
+    image: aymon/hive.discordbot.slim:latest
     env:
     - name: TOKEN
       value: "${DISCORDBOTTOKEN}"
