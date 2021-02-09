@@ -43,6 +43,11 @@ docker build --pull --rm -f "Dockerfile" -t hive:latest "."
 docker run -e TOKEN=<bot token> hive:latest
 ```
 
+Slim the docker container with [`docker-slim`](https://github.com/docker-slim/docker-slim) should get good results e.g. `cmd=build info=results status='MINIFIED BY 83.09X [928699637 (929 MB) => 11177245 (11 MB)]'`
+``` shell
+docker-slim build --http-probe=false hive:latest
+``` 
+
 ## Running in Kubernetes
 
 The makefile will generate the `deployment.yml` in the `build_k8s` folder, and requires the DISCORDBOTTOKEN environment variable to be set.
