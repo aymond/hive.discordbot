@@ -13,7 +13,7 @@ variable "namespace" {
 variable "configpath" {
   default     = "~/.kube/prod.config"
   description = "Path to Kubeconfig."
-  types       = "string"
+  type       = "string"
 }
 
 provider "kubernetes" {
@@ -54,7 +54,7 @@ resource "kubernetes_deployment" "discordbot" {
       spec {
 
         container {
-          image = "aymon/hive.discordbot:latest"
+          image = "aymon/hive.discordbot.slim:latest"
           name  = "discordbot"
           resources {
             limits = {
