@@ -1,14 +1,10 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
-	"os"
-	"os/signal"
 	"strconv"
 	"strings"
-	"syscall"
 
 	"github.com/aymond/hive.discordbot/internal/pkg/bgg"
 	"github.com/bwmarrin/discordgo"
@@ -16,44 +12,14 @@ import (
 
 var gamestatus string
 
-// RunBot starts the bot
-func RunBot(token string, gamestatus string) error {
-	discord, err := discordgo.New("Bot " + token)
-	if err != nil {
-		fmt.Println("Error creating Discord session: ", err)
-		return err
-	}
-
-	// Register callbacks for the discord events.
-	discord.AddHandler(ready)
-	discord.AddHandler(messageCreate)
-
-	// Open the websocket and begin listening.
-	err = discord.Open()
-	if err != nil {
-		fmt.Println("Error opening Discord session: ", err)
-		return err
-	}
-
-	// Wait here until CTRL-C or other term signal is received.
-	fmt.Println("Listener is now running.  Press CTRL-C to exit.")
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-	<-sc
-
-	// Close the websocket and stop listening.
-	discord.Close()
-	return nil
-}
-
-// ready will be called when the bot receives the "ready" event from Discord.
-func ready(session *discordgo.Session, event *discordgo.Ready) {
+// Ready will be called when the bot receives the "ready" event from Discord.
+func Ready(session *discordgo.Session, event *discordgo.Ready) {
 	// Set the bots status.
 	session.UpdateGameStatus(0, gamestatus)
 }
 
-// messageCreated will be called every time a new message is created on any channel that the authenticated bot has access to.
-func messageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
+// MessageCreated will be called every time a new message is created on any channel that the authenticated bot has access to.
+func MessageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Ignore all messages that the bot creates
 	if m.Author.ID == session.State.User.ID {
@@ -62,19 +28,19 @@ func messageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// check if the message is "!Hello"
 	if strings.HasPrefix(m.Content, "!Hello") {
-		answerHello(session, m)
+		AnswerHello(session, m)
 	}
 
 	if strings.HasPrefix(m.Content, "!hello") {
-		answerHello(session, m)
+		AnswerHello(session, m)
 	}
 
 	if strings.HasPrefix(m.Content, "!bgg") {
-		answerBgg(session, m)
+		AnswerBgg(session, m)
 	}
 
 	if strings.HasPrefix(m.Content, "!random") {
-		randomPlayer(session, m)
+		RandomPlayer(session, m)
 	}
 
 	// If the message is "ping" reply with "Pong!"
@@ -88,12 +54,12 @@ func messageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func answerHello(session *discordgo.Session, m *discordgo.MessageCreate) {
+func AnswerHello(session *discordgo.Session, m *discordgo.MessageCreate) {
 
 	session.ChannelMessageSend(m.ChannelID, "Hello "+m.Author.Username)
 }
 
-func answerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
+func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 	parts := strings.Split(m.Content, " ")
 	if len(parts) < 2 {
 		session.ChannelMessageSend(m.ChannelID, "Should have had three parts "+m.Author.Username)
@@ -154,7 +120,7 @@ func answerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func randomPlayer(session *discordgo.Session, m *discordgo.MessageCreate) {
+func RandomPlayer(session *discordgo.Session, m *discordgo.MessageCreate) {
 
 	parts := strings.Split(m.Content, " ")
 	if len(parts) != 2 {
