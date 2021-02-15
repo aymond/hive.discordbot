@@ -1,7 +1,6 @@
-package main
+package cmd
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"math/rand"
@@ -15,28 +14,12 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// Variables used for command line parameters
-var (
-	token      string
-	gamestatus string
-)
-
-func init() {
-	flag.StringVar(&token, "t", "", "Discord Bot Token")
-	flag.StringVar(&gamestatus, "s", "Hacking!", "Game Status")
-	flag.Parse()
-}
-
-func main() {
-	if token == "" {
-		fmt.Println("No token provided. Please run: with option -t <bot token>")
-		return
-	}
-
+// RunBot starts the bot
+func RunBot(token string, gamestatus string) error {
 	discord, err := discordgo.New("Bot " + token)
 	if err != nil {
 		fmt.Println("Error creating Discord session: ", err)
-		return
+		return err
 	}
 
 	// Register callbacks for the discord events.
@@ -47,7 +30,7 @@ func main() {
 	err = discord.Open()
 	if err != nil {
 		fmt.Println("Error opening Discord session: ", err)
-		return
+		return err
 	}
 
 	// Wait here until CTRL-C or other term signal is received.
@@ -58,10 +41,11 @@ func main() {
 
 	// Close the websocket and stop listening.
 	discord.Close()
+	return nil
 }
 
 // ready will be called when the bot receives the "ready" event from Discord.
-func ready(session *discordgo.Session, event *discordgo.Ready) {
+func ready(session *discordgo.Session, event *discordgo.Ready, gamestatus string) {
 	// Set the bots status.
 	session.UpdateGameStatus(0, gamestatus)
 }
