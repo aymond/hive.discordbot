@@ -1,6 +1,6 @@
 PACKAGE ?= hive.discordbot
 VERSION ?= latest
-K8S_DIR       ?= ./k8s
+K8S_DIR       ?= ./deployments/k8s
 K8S_BUILD_DIR ?= ./build_k8s
 K8S_FILES     := $(shell find $(K8S_DIR) -name '*.yml' -or -name '*.yaml' | sed 's:$(K8S_DIR)/::g') 
 
