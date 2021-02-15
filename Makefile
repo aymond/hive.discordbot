@@ -1,6 +1,6 @@
 PACKAGE ?= hive.discordbot
 VERSION ?= latest
-K8S_DIR       ?= ./k8s
+K8S_DIR       ?= ./deployments/k8s
 K8S_BUILD_DIR ?= ./build_k8s
 K8S_FILES     := $(shell find $(K8S_DIR) -name '*.yml' -or -name '*.yaml' | sed 's:$(K8S_DIR)/::g') 
 
@@ -8,8 +8,9 @@ DOCKER_REGISTRY_DOMAIN ?= docker.io
 DOCKER_REGISTRY_PATH   ?= aymon
 DOCKER_IMAGE           ?= $(DOCKER_REGISTRY_PATH)/$(PACKAGE):$(VERSION)
 DOCKER_IMAGE_DOMAIN    ?= $(DOCKER_REGISTRY_DOMAIN)/$(DOCKER_IMAGE)
+DOCKER_IMAGE_SLIM	   ?= $(DOCKER_REGISTRY_PATH)/$(PACKAGE).slim:$(VERSION)
 
-MAKE_ENV += PACKAGE VERSION DOCKER_IMAGE DOCKER_IMAGE_DOMAIN
+MAKE_ENV += PACKAGE VERSION DOCKER_IMAGE DOCKER_IMAGE_DOMAIN DOCKER_IMAGE_SLIM
 
 SHELL_EXPORT := $(foreach v,$(MAKE_ENV),$(v)='$($(v))' )
 
@@ -17,7 +18,16 @@ default: build_in_docker ## build docker by default
 
 build_in_docker:   ## build in docker
 	rm -rfv bin
-	docker build . -t "$(DOCKER_IMAGE)"
+	docker build --pull --rm -f "Dockerfile" -t "$(DOCKER_IMAGE)" .
+
+slimify:
+	docker-slim build --http-probe=false "$(DOCKER_IMAGE)"
+
+push:
+	docker push "$(DOCKER_IMAGE)"
+
+slimify-push:
+    docker push "$(DOCKER_IMAGE_SLIM)"
 
 push-docker: build-docker
 	docker push "$(DOCKER_IMAGE)"
@@ -48,4 +58,4 @@ ifndef DISCORDBOTTOKEN
 	$(error DISCORDBOTTOKEN is undefined. export DISCORDBOTTOKEN=<discordbottoken>)
 endif
 
-.PHONY: default help build_in_docker build build-k8s deploy check-token
+.PHONY: default help build_in_docker build build-k8s deploy check-token push slimify slimify-push
