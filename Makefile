@@ -8,6 +8,7 @@ DOCKER_REGISTRY_DOMAIN ?= docker.io
 DOCKER_REGISTRY_PATH   ?= aymon
 DOCKER_IMAGE           ?= $(DOCKER_REGISTRY_PATH)/$(PACKAGE):$(VERSION)
 DOCKER_IMAGE_DOMAIN    ?= $(DOCKER_REGISTRY_DOMAIN)/$(DOCKER_IMAGE)
+DOCKER_IMAGE_SLIM	   ?= $(DOCKER_REGISTRY_PATH)/$(PACKAGE).slim:$(VERSION)
 
 MAKE_ENV += PACKAGE VERSION DOCKER_IMAGE DOCKER_IMAGE_DOMAIN
 
@@ -21,6 +22,12 @@ build_in_docker:   ## build in docker
 
 slimify:
 	docker-slim build --http-probe=false "$(DOCKER_IMAGE)"
+
+push:
+	docker push "$(DOCKER_IMAGE)"
+
+slimify-push:
+    docker push "$(DOCKER_IMAGE_SLIM)"
 
 push-docker: build-docker
 	docker push "$(DOCKER_IMAGE)"
