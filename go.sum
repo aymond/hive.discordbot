@@ -1,5 +1,3 @@
-github.com/aymond/bgg v0.0.0-20210203222340-f549375d403e h1:/Hm8vjZIP5ptR4bZ2fRAue4TM4zsAUAIteaBEDkUB4U=
-github.com/aymond/bgg v0.0.0-20210203222340-f549375d403e/go.mod h1:LaGIjc33j4K6QbnZv4/DHxx5n3hrQDnP4aOAjp+mDsc=
 github.com/bwmarrin/discordgo v0.23.1 h1:xlK4/69bpl/VSoCYaKe3BOc9j1HkNopoRdCppRYu8dk=
 github.com/bwmarrin/discordgo v0.23.1/go.mod h1:c1WtWUGN6nREDmzIpyTp/iD3VYt4Fpx+bVyfBG7JE+M=
 github.com/gorilla/websocket v1.4.0 h1:WDFjx/TMzVgy9VdMMQi2K2Emtwi2QcUQsztZ/zLaH/Q=

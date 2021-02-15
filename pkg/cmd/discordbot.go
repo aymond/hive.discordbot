@@ -10,9 +10,11 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/aymond/bgg"
+	"github.com/aymond/hive.discordbot/internal/pkg/bgg"
 	"github.com/bwmarrin/discordgo"
 )
+
+var gamestatus string
 
 // RunBot starts the bot
 func RunBot(token string, gamestatus string) error {
@@ -45,7 +47,7 @@ func RunBot(token string, gamestatus string) error {
 }
 
 // ready will be called when the bot receives the "ready" event from Discord.
-func ready(session *discordgo.Session, event *discordgo.Ready, gamestatus string) {
+func ready(session *discordgo.Session, event *discordgo.Ready) {
 	// Set the bots status.
 	session.UpdateGameStatus(0, gamestatus)
 }
