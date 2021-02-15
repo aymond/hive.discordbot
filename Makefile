@@ -17,7 +17,7 @@ default: build_in_docker ## build docker by default
 
 build_in_docker:   ## build in docker
 	rm -rfv bin
-	docker build --pull --rm -f "Dockerfile" -t "$(DOCKER_IMAGE)"
+	docker build --pull --rm -f "Dockerfile" -t "$(DOCKER_IMAGE)" .
 
 slimify:
 	docker-slim build --http-probe=false "$(DOCKER_IMAGE)"
