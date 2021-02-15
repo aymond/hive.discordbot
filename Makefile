@@ -10,7 +10,7 @@ DOCKER_IMAGE           ?= $(DOCKER_REGISTRY_PATH)/$(PACKAGE):$(VERSION)
 DOCKER_IMAGE_DOMAIN    ?= $(DOCKER_REGISTRY_DOMAIN)/$(DOCKER_IMAGE)
 DOCKER_IMAGE_SLIM	   ?= $(DOCKER_REGISTRY_PATH)/$(PACKAGE).slim:$(VERSION)
 
-MAKE_ENV += PACKAGE VERSION DOCKER_IMAGE DOCKER_IMAGE_DOMAIN
+MAKE_ENV += PACKAGE VERSION DOCKER_IMAGE DOCKER_IMAGE_DOMAIN DOCKER_IMAGE_SLIM
 
 SHELL_EXPORT := $(foreach v,$(MAKE_ENV),$(v)='$($(v))' )
 
@@ -58,4 +58,4 @@ ifndef DISCORDBOTTOKEN
 	$(error DISCORDBOTTOKEN is undefined. export DISCORDBOTTOKEN=<discordbottoken>)
 endif
 
-.PHONY: default help build_in_docker build build-k8s deploy check-token
+.PHONY: default help build_in_docker build build-k8s deploy check-token push slimify slimify-push
