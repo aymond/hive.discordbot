@@ -21,13 +21,13 @@ build_in_docker:   ## build in docker
 	docker build --pull --rm -f "Dockerfile" -t "$(DOCKER_IMAGE)" .
 
 slimify:
-	docker-slim build --http-probe=false "$(DOCKER_IMAGE)"
+	docker-slim build --http-probe=false --continue-after 5 "$(DOCKER_IMAGE)"
 
 push:
 	docker push "$(DOCKER_IMAGE)"
 
 slimify-push:
-    docker push "$(DOCKER_IMAGE_SLIM)"
+	docker push "$(DOCKER_IMAGE_SLIM)"
 
 push-docker: build-docker
 	docker push "$(DOCKER_IMAGE)"
