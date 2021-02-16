@@ -20,13 +20,13 @@ build_in_docker:   ## build in docker
 	rm -rfv bin
 	docker build --pull --rm -f "Dockerfile" -t "$(DOCKER_IMAGE)" .
 
-slimify:
+slimify:  ## build with docker-slim
 	docker-slim build --http-probe=false --continue-after 5 "$(DOCKER_IMAGE)"
 
-push:
+push:  ## push to docker.io
 	docker push "$(DOCKER_IMAGE)"
 
-slimify-push:
+slimify-push:  ## push slim image to docker.io
 	docker push "$(DOCKER_IMAGE_SLIM)"
 
 push-docker: build-docker
