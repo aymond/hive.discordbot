@@ -18,7 +18,7 @@ func Ready(session *discordgo.Session, event *discordgo.Ready) {
 	session.UpdateGameStatus(0, gamestatus)
 }
 
-// MessageCreated will be called every time a new message is created on any channel that the authenticated bot has access to.
+// MessageCreate will be called every time a new message is created on any channel that the authenticated bot has access to.
 func MessageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Ignore all messages that the bot creates
@@ -54,11 +54,13 @@ func MessageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
+// AnswerHello answers the Hello command
 func AnswerHello(session *discordgo.Session, m *discordgo.MessageCreate) {
 
 	session.ChannelMessageSend(m.ChannelID, "Hello "+m.Author.Username)
 }
 
+// AnswerBgg answers the BGG command
 func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 	parts := strings.Split(m.Content, " ")
 	if len(parts) < 2 {
