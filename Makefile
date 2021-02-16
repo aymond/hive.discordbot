@@ -31,7 +31,7 @@ push:  ## push to docker.io
 slimify-push:  ## push slim image to docker.io
 	docker push "$(DOCKER_IMAGE_SLIM)"
 
-push-docker: build-docker
+push-docker: build_in_docker
 	docker push "$(DOCKER_IMAGE)"
 
 fmt:  ## format all golang files
