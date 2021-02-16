@@ -1,5 +1,7 @@
 PACKAGE ?= hive.discordbot
 VERSION ?= latest
+GO_BUILD_DIR  ?= ./cmd/discordbot
+GO_FILE       ?= discordbot.go
 K8S_DIR       ?= ./deployments/k8s
 K8S_BUILD_DIR ?= ./build_k8s
 K8S_FILES     := $(shell find $(K8S_DIR) -name '*.yml' -or -name '*.yaml' | sed 's:$(K8S_DIR)/::g') 
@@ -36,7 +38,7 @@ fmt:  ## format all golang files
 	go fmt
 
 build:  ## build
-	go build -o ./bin/main
+	go build $(GO_BUILD_DIR)/$(GOFILE) -o ./bin/main
 
 $(K8S_BUILD_DIR):
 	@mkdir -p $(K8S_BUILD_DIR)
