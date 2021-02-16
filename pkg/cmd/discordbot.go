@@ -120,16 +120,17 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
+// RandomPlayer generates a random number
 func RandomPlayer(session *discordgo.Session, m *discordgo.MessageCreate) {
 
 	parts := strings.Split(m.Content, " ")
 	if len(parts) != 2 {
-		session.ChannelMessageSend(m.ChannelID, "Should have a single number e.g. !random 3 "+m.Author.Username)
+		session.ChannelMessageSend(m.ChannelID, m.Author.Username+", you should have a single number e.g. !random 3 ")
 		return
 	}
 	max, _ := strconv.Atoi(parts[1])
 	// Choose random number between 1 and max
 	randomNumber := rand.Intn(max-1) + 1
 	log.Println("The secret number is", randomNumber)
-	session.ChannelMessageSend(m.ChannelID, "Random Number: "+strconv.Itoa(randomNumber))
+	session.ChannelMessageSend(m.ChannelID, m.Author.Username+"'s random number: "+strconv.Itoa(randomNumber))
 }
