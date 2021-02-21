@@ -1,5 +1,7 @@
 # Discord bot
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/aymond/hive.discordbot)](https://goreportcard.com/report/github.com/aymond/hive.discordbot)
+
 Discord Bot for The Quarantined. 
 
 Learning golang, learning discord bots and other random things.

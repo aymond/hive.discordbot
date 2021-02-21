@@ -3,20 +3,16 @@ package cmd
 import (
 	"log"
 	"math/rand"
+	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/aymond/hive.discordbot/internal/pkg/bgg"
 	"github.com/bwmarrin/discordgo"
+	"github.com/dyatlov/go-htmlinfo/htmlinfo"
 )
 
 var gamestatus string
-
-// Ready will be called when the bot receives the "ready" event from Discord.
-func Ready(session *discordgo.Session, event *discordgo.Ready) {
-	// Set the bots status.
-	session.UpdateGameStatus(0, gamestatus)
-}
 
 // MessageCreate will be called every time a new message is created on any channel that the authenticated bot has access to.
 func MessageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
@@ -27,6 +23,7 @@ func MessageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// check if the message is "!Hello"
+	// TODO Check just the first character for the prefix. If a !, then check which command.
 	if strings.HasPrefix(m.Content, "!Hello") {
 		AnswerHello(session, m)
 	}
@@ -62,6 +59,8 @@ func AnswerHello(session *discordgo.Session, m *discordgo.MessageCreate) {
 
 // AnswerBgg answers the BGG command
 func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
+
+	// TODO Normalise the BGG Commands to an intent e.g. find, get, should map to search action
 	parts := strings.Split(m.Content, " ")
 	if len(parts) < 2 {
 		session.ChannelMessageSend(m.ChannelID, "Should have had three parts "+m.Author.Username)
@@ -80,13 +79,28 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 			session.ChannelMessageSend(m.ChannelID, "No results found.")
 		case "1":
 			gameID := results.Items[0].ID
-			meta := bgg.GetItemPage("https://boardgamegeek.com/boardgame/" + gameID)
+			u := "https://boardgamegeek.com/boardgame/" + gameID
+			resp, err := http.Get(u)
+			if err != nil {
+				panic(err)
+			}
+
+			defer resp.Body.Close()
+
+			info := htmlinfo.NewHTMLInfo()
+			// if url can be nil too, just then we won't be able to fetch (and generate) oembed information
+			err = info.Parse(resp.Body, &u, nil)
+
+			if err != nil {
+				panic(err)
+			}
+
 			complexMessage := discordgo.MessageEmbed{
 
-				Title:       results.Items[0].Names[0].Value,
-				Description: meta.Description,
-				URL:         "https://boardgamegeek.com/boardgame/" + gameID,
-				Thumbnail:   &discordgo.MessageEmbedThumbnail{URL: meta.Image},
+				Title:       info.OGInfo.Title,
+				Description: info.OGInfo.Description,
+				URL:         info.OGInfo.URL,
+				Thumbnail:   &discordgo.MessageEmbedThumbnail{URL: info.OGInfo.Images[0].URL},
 			}
 
 			session.ChannelMessageSendEmbed(m.ChannelID, &complexMessage)
@@ -101,22 +115,6 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			session.ChannelMessageSendEmbed(m.ChannelID, &complexMessage)
 		}
-
-	case "exact":
-		searchstring := strings.Join(parts[2:], "+")
-		exact := true
-		results, _ := bgg.SearchItems(searchstring, "boardgame", exact)
-		gameID := results.Items[0].ID
-
-		meta := bgg.GetItemPage("https://boardgamegeek.com/boardgame/" + gameID)
-		complexMessage := discordgo.MessageEmbed{
-
-			Title:       results.Items[0].Names[0].Value,
-			Description: meta.Description,
-			URL:         "https://boardgamegeek.com/boardgame/" + gameID,
-			Thumbnail:   &discordgo.MessageEmbedThumbnail{URL: meta.Image},
-		}
-		session.ChannelMessageSendEmbed(m.ChannelID, &complexMessage)
 	default:
 		session.ChannelMessageSend(m.ChannelID, "Hello "+m.Author.Username)
 	}
