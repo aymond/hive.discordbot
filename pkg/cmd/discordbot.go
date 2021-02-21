@@ -22,22 +22,24 @@ func MessageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// check if the message is "!Hello"
-	// TODO Check just the first character for the prefix. If a !, then check which command.
-	if strings.HasPrefix(m.Content, "!Hello") {
-		AnswerHello(session, m)
-	}
+	// Check just the first character for the bot command prefix (!). If a !, then check which command.
+	if strings.HasPrefix(m.Content, "!") {
 
-	if strings.HasPrefix(m.Content, "!hello") {
-		AnswerHello(session, m)
-	}
+		if strings.HasPrefix(m.Content, "!Hello") {
+			AnswerHello(session, m)
+		}
 
-	if strings.HasPrefix(m.Content, "!bgg") {
-		AnswerBgg(session, m)
-	}
+		if strings.HasPrefix(m.Content, "!hello") {
+			AnswerHello(session, m)
+		}
 
-	if strings.HasPrefix(m.Content, "!random") {
-		RandomPlayer(session, m)
+		if strings.HasPrefix(m.Content, "!bgg") {
+			AnswerBgg(session, m)
+		}
+
+		if strings.HasPrefix(m.Content, "!random") {
+			RandomPlayer(session, m)
+		}
 	}
 
 	// If the message is "ping" reply with "Pong!"
