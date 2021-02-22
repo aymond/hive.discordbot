@@ -44,18 +44,18 @@ func MessageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 
 		if strings.HasPrefix(m.Content, "!random") {
 			message := randomPlayer(session, m)
-			session.ChannelMessageSend(m.ChannelID, message)
+			channelMessageSend(session, m.ChannelID, message)
 		}
 	}
 
 	// If the message is "ping" reply with "Pong!"
 	if m.Content == "ping" {
-		session.ChannelMessageSend(m.ChannelID, "Pong!")
+		channelMessageSend(session, m.ChannelID, "Pong!")
 	}
 
 	// If the message is "pong" reply with "Ping!"
 	if m.Content == "pong" {
-		session.ChannelMessageSend(m.ChannelID, "Ping!")
+		channelMessageSend(session, m.ChannelID, "Ping!")
 	}
 }
 
@@ -68,23 +68,23 @@ func AnswerHello(session *discordgo.Session, m *discordgo.MessageCreate) {
 // AnswerBgg answers the BGG command
 func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 
-	// TODO Normalise the BGG Commands to an intent e.g. find, get, should map to search action
 	parts := strings.Split(m.Content, " ")
 	if len(parts) < 2 {
-		session.ChannelMessageSend(m.ChannelID, "Should have had three parts "+m.Author.Username)
+		channelMessageSend(session, m.ChannelID, "Should have had three parts "+m.Author.Username)
 		return
 	}
 
+	// TODO Normalise the BGG Commands to an intent e.g. find, get, should map to search action
 	switch parts[1] {
 	case "find":
-		session.ChannelMessageSend(m.ChannelID, "Finding "+m.Author.Username)
+		channelMessageSend(session, m.ChannelID, "Finding "+m.Author.Username)
 	case "search":
 		searchstring := strings.Join(parts[2:], "+")
 		exact := true
 		results, searchurl := bgg.SearchItems(searchstring, "boardgame", exact)
 		switch results.Total {
 		case "0":
-			session.ChannelMessageSend(m.ChannelID, "No results found.")
+			channelMessageSend(session, m.ChannelID, "No results found.")
 		case "1":
 			gameID := results.Items[0].ID
 			u := "https://boardgamegeek.com/boardgame/" + gameID
@@ -114,17 +114,17 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 			channelMessageSendEmbed(session, m.ChannelID, &complexMessage)
 
 		case "2":
-			session.ChannelMessageSend(m.ChannelID, "Found "+results.Total+" results.")
+			channelMessageSend(session, m.ChannelID, "Found "+results.Total+" results.")
 		default:
 			complexMessage := discordgo.MessageEmbed{
 
 				Title: "Found " + results.Total + " results.",
 				URL:   searchurl,
 			}
-			session.ChannelMessageSendEmbed(m.ChannelID, &complexMessage)
+			channelMessageSendEmbed(session, m.ChannelID, &complexMessage)
 		}
 	default:
-		session.ChannelMessageSend(m.ChannelID, "Hello "+m.Author.Username)
+		channelMessageSend(session, m.ChannelID, "Hello "+m.Author.Username)
 	}
 }
 
@@ -143,12 +143,12 @@ func randomPlayer(session *discordgo.Session, m *discordgo.MessageCreate) string
 	return message
 }
 
-func channelMessageSend(session *discordgo.Session, m *discordgo.MessageCreate, message string) {
-	session.ChannelMessageSend(m.ChannelID, message)
+func channelMessageSend(session *discordgo.Session, channelID string, message string) {
+	session.ChannelMessageSend(channelID, message)
 }
 
-func channelMessageSendEmbed(session *discordgo.Session, m string, message *discordgo.MessageEmbed) {
-	response, err := session.ChannelMessageSendEmbed(m, message)
+func channelMessageSendEmbed(session *discordgo.Session, channelID string, message *discordgo.MessageEmbed) {
+	response, err := session.ChannelMessageSendEmbed(channelID, message)
 
 	if err != nil {
 		fmt.Println("Error sending embedded message:", response, err)
