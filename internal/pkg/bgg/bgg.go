@@ -73,6 +73,7 @@ type yearpublished struct {
 
 // getSearchXML Private function that queries the API prepared in SearchItems.
 func getSearchXML(url string) Items {
+	var data []byte
 	log.Println(url)
 	response, err := http.Get(url)
 	var v Items
@@ -80,7 +81,11 @@ func getSearchXML(url string) Items {
 		log.Fatal(err)
 	} else {
 		defer response.Body.Close()
-		data, err := ioutil.ReadAll(response.Body)
+		data, err = ioutil.ReadAll(response.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		err = xml.Unmarshal([]byte(data), &v)
 		if err != nil {
 			log.Fatal(err)
