@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
@@ -14,16 +15,20 @@ import (
 
 var gamestatus string
 
-// MessageCreate will be called every time a new message is created on any channel that the authenticated bot has access to.
+// TODO Make bot command prefix setting configurable i.e. default "!", but may be overridden..
+
+// MessageCreate is called every time a new message is created on any channel that the authenticated bot has access to.
 func MessageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 
-	// Ignore all messages that the bot creates
+	// Ignore all messages that the bot itself creates
 	if m.Author.ID == session.State.User.ID {
 		return
 	}
 
-	// Check just the first character for the bot command prefix (!). If a !, then check which command.
+	// Check just the first character for the bot command prefix. If bot command prefix is used, then check which command.
 	if strings.HasPrefix(m.Content, "!") {
+
+		log.Println("Bot Command:", m.Content)
 
 		if strings.HasPrefix(m.Content, "!Hello") {
 			AnswerHello(session, m)
@@ -38,7 +43,8 @@ func MessageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		if strings.HasPrefix(m.Content, "!random") {
-			RandomPlayer(session, m)
+			message := randomPlayer(session, m)
+			session.ChannelMessageSend(m.ChannelID, message)
 		}
 	}
 
@@ -105,7 +111,7 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 				Thumbnail:   &discordgo.MessageEmbedThumbnail{URL: info.OGInfo.Images[0].URL},
 			}
 
-			session.ChannelMessageSendEmbed(m.ChannelID, &complexMessage)
+			channelMessageSendEmbed(session, m.ChannelID, &complexMessage)
 
 		case "2":
 			session.ChannelMessageSend(m.ChannelID, "Found "+results.Total+" results.")
@@ -123,16 +129,28 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 // RandomPlayer generates a random number
-func RandomPlayer(session *discordgo.Session, m *discordgo.MessageCreate) {
-
+func randomPlayer(session *discordgo.Session, m *discordgo.MessageCreate) string {
+	var message string
 	parts := strings.Split(m.Content, " ")
 	if len(parts) != 2 {
-		session.ChannelMessageSend(m.ChannelID, m.Author.Username+", you should have a single number e.g. !random 3 ")
-		return
+		message = (m.Author.Username + ", you should have a single number e.g. !random 3 ")
+	} else {
+		max, _ := strconv.Atoi(parts[1])
+		// Choose random number between 1 and the given range
+		randomNumber := rand.Intn(max-1) + 1
+		message = m.Author.Username + "'s random number: " + strconv.Itoa(randomNumber)
 	}
-	max, _ := strconv.Atoi(parts[1])
-	// Choose random number between 1 and max
-	randomNumber := rand.Intn(max-1) + 1
-	log.Println("The secret number is", randomNumber)
-	session.ChannelMessageSend(m.ChannelID, m.Author.Username+"'s random number: "+strconv.Itoa(randomNumber))
+	return message
+}
+
+func channelMessageSend(session *discordgo.Session, m *discordgo.MessageCreate, message string) {
+	session.ChannelMessageSend(m.ChannelID, message)
+}
+
+func channelMessageSendEmbed(session *discordgo.Session, m string, message *discordgo.MessageEmbed) {
+	response, err := session.ChannelMessageSendEmbed(m, message)
+
+	if err != nil {
+		fmt.Println("Error sending embedded message:", response, err)
+	}
 }
