@@ -3,6 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,6 +18,7 @@ import (
 var (
 	token      string
 	gamestatus string
+	results    []string
 )
 
 func init() {
@@ -43,6 +47,18 @@ func main() {
 		fmt.Println("Error opening Discord session: ", err)
 		return
 	}
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/", indexHandler)
+	mux.HandleFunc("/post", postHandler)
+
+	log.Printf("Post Handler listening on port %s", port)
+	log.Fatal(http.ListenAndServe(":"+port, mux))
 
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Listener is now running.  Press CTRL-C to exit.")
@@ -62,4 +78,24 @@ func ready(session *discordgo.Session, event *discordgo.Ready) {
 
 func messageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 	cmd.MessageCreate(session, m)
+}
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("<h1>Hello World!</h1>"))
+}
+
+// postHandler converts post request body to string
+func postHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Error reading request body",
+				http.StatusInternalServerError)
+		}
+		results = append(results, string(body))
+
+		fmt.Fprint(w, "POST done")
+	} else {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+	}
 }
