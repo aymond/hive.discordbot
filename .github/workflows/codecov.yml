@@ -1,4 +1,4 @@
-name: Workflow for Codecov Action
+name: Workflow for Codecov, Go Report Action
 on: [push, pull_request]
 jobs:
   run:
@@ -6,3 +6,5 @@ jobs:
     steps:
     - name: Codecov
       uses: codecov/codecov-action@v1.2.1
+    - name: Go report card
+      uses: creekorful/goreportcard-action@v1.0
