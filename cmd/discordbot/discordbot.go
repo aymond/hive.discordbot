@@ -9,6 +9,9 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"text/template"
+
+	"github.com/gorilla/mux"
 
 	"github.com/aymond/hive.discordbot/pkg/cmd"
 	"github.com/bwmarrin/discordgo"
@@ -19,6 +22,7 @@ var (
 	token      string
 	gamestatus string
 	results    []string
+	Session    *discordgo.Session
 )
 
 func init() {
@@ -52,13 +56,14 @@ func main() {
 		port = "3000"
 	}
 
-	mux := http.NewServeMux()
+	r := mux.NewRouter()
 
-	mux.HandleFunc("/", indexHandler)
-	mux.HandleFunc("/post", postHandler)
+	r.HandleFunc("/", homeHandler)
+	r.HandleFunc("/post", postHandler)
+	r.HandleFunc("/messagepost", messagepostHandler)
 
 	log.Printf("Post Handler listening on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, mux))
+	log.Fatal(http.ListenAndServe(":"+port, r))
 
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Listener is now running.  Press CTRL-C to exit.")
@@ -74,14 +79,35 @@ func main() {
 func ready(session *discordgo.Session, event *discordgo.Ready) {
 	// Set the bots status.
 	session.UpdateGameStatus(0, gamestatus)
+	Session = session
 }
 
 func messageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 	cmd.MessageCreate(session, m)
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("<h1>Hello World!</h1>"))
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	var dir string = "../../web/static/"
+	t, _ := template.ParseFiles(dir + "index.html") //parse the html file index.html
+
+	t.Execute(w, "") //execute the template
+}
+
+func messagepostHandler(w http.ResponseWriter, r *http.Request) {
+	//curl -d "channel=1234&message=Hello,%20World%21" -X POST http://localhost:3000/messagepost
+	switch r.Method {
+	case "POST":
+		// Call ParseForm() to parse the raw query and update r.PostForm and r.Form.
+		if err := r.ParseForm(); err != nil {
+			fmt.Fprintf(w, "ParseForm() err: %v", err)
+			return
+		}
+		fmt.Fprintf(w, "Post from website! r.PostForm = %v\n", r.PostForm)
+		cmd.ChannelMessageSend(Session, r.PostFormValue("channel"), r.PostFormValue("message"))
+	default:
+		fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
+
+	}
 }
 
 // postHandler converts post request body to string
@@ -94,7 +120,7 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		results = append(results, string(body))
 
-		fmt.Fprint(w, "POST done")
+		log.Println(w, "POST done")
 	} else {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	}
