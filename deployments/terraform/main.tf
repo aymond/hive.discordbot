@@ -10,10 +10,17 @@ variable "namespace" {
   default     = "discordbot"
 }
 
+variable "containerimage" {
+  description = "Discordbot container image"
+  type        = string
+  sensitive   = false
+  default     = "aymon/hive.discordbot:dev"
+}
+
 variable "configpath" {
   default     = "~/.kube/kubeconfig.prod"
   description = "Path to Kubeconfig."
-  type       = string
+  type        = string
 }
 
 provider "kubernetes" {
@@ -49,12 +56,13 @@ resource "kubernetes_deployment" "discordbot" {
         namespace = var.namespace
         labels = {
           purpose = "discordbot"
+          app     = "discordbot"
         }
       }
       spec {
 
         container {
-          image = "aymon/hive.discordbot:latest"
+          image = var.containerimage
           name  = "discordbot"
           resources {
             limits = {
@@ -73,5 +81,25 @@ resource "kubernetes_deployment" "discordbot" {
         }
       }
     }
+  }
+}
+
+resource "kubernetes_service" "webbot" {
+  metadata {
+    name = "discordbot-web"
+  }
+  spec {
+    selector = {
+      app = kubernetes_deployment.discordbot.spec.0.template.0.metadata[0].labels.app
+    }
+    
+    port {
+      //node_port   = 30201
+      port        = 3000
+      target_port = 3000
+    }
+
+    type = "LoadBalancer"
+    //session_affinity = "ClientIP"
   }
 }

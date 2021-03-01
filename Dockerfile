@@ -18,6 +18,7 @@ WORKDIR /app
 ## executable of our Go program
 RUN go mod download
 RUN go build -o main -i cmd/discordbot/discordbot.go
+EXPOSE 3000
 ## Our start command which kicks off
 ## our newly created binary executable
 CMD /app/main -t ${TOKEN}
