@@ -87,6 +87,7 @@ func messageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("homeHandler called.")
 	var dir string = "../../web/static/"
 	t, _ := template.ParseFiles(dir + "index.html") //parse the html file index.html
 
@@ -94,6 +95,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func messagepostHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("messagepostHandler called.")
 	//curl -d "channel=1234&message=Hello,%20World%21" -X POST http://localhost:3000/messagepost
 	switch r.Method {
 	case "POST":
@@ -105,13 +107,14 @@ func messagepostHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Post from website! r.PostForm = %v\n", r.PostForm)
 		cmd.ChannelMessageSend(Session, r.PostFormValue("channel"), r.PostFormValue("message"))
 	default:
-		fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
+		fmt.Fprintf(w, "Sorry, only POST method is supported.")
 
 	}
 }
 
 // postHandler converts post request body to string
 func postHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("postHandler called.")
 	if r.Method == "POST" {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
