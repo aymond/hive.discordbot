@@ -53,25 +53,3 @@ resource "kubernetes_deployment" "discordbot" {
     }
   }
 }
-
-resource "kubernetes_service" "webbot" {
-  metadata {
-    name = "discordbot-web"
-  }
-  spec {
-    selector = {
-      app = kubernetes_deployment.discordbot.spec.0.template.0.metadata[0].labels.app
-    }
-
-    port {
-      //node_port   = 30201\
-      protocol    = "TCP"
-      port        = 3000
-      target_port = 3000
-    }
-
-    type                    = "LoadBalancer"
-    session_affinity        = "None"
-    external_traffic_policy = "Local"
-  }
-}
