@@ -16,9 +16,9 @@ import (
 var (
 	token      string
 	gamestatus string
-	port       int
-	results    []string
-	Session    *discordgo.Session
+	/*port       int
+	results    []string*/
+	Session *discordgo.Session
 )
 
 func init() {
@@ -30,6 +30,15 @@ func init() {
 func main() {
 	logger := log.New(os.Stdout, "discordbot: ", log.LstdFlags)
 
+	// gRPC server starting
+	/* go func() {
+		lis, err := net.Listen("tcp", ":9000")
+		if err != nil {
+			log.Fatalf("Failed to listen on port 9000: %v", err)
+		}
+	}() */
+
+	// Bot Starting
 	if token == "" {
 		fmt.Println("No token provided. Please run: with option -t <bot token>")
 		return
