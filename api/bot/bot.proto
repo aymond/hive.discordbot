@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package bot;
+
+option go_package = "github.com/hive.discordrpc/api/bot";
+
+service ChannelsService {
+  rpc getChannels(Empty) returns (RespondChannels) {
+
+  }
+}
+
+message Empty{
+}
+
+message RespondChannels {
+  repeated Channel Channels = 1;
+}
+
+message Channel {
+  int32 id = 1;
+  string name = 2;
+}

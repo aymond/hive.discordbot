@@ -1,38 +1,15 @@
-variable "bottoken" {
-  description = "Bot token provided by Discord."
-  type        = string
-  sensitive   = true
-}
-variable "namespace" {
-  description = "Kubernetes Namespace."
-  type        = string
-  sensitive   = false
-  default     = "discordbot"
-}
-
-variable "configpath" {
-  default     = "~/.kube/kubeconfig.prod"
-  description = "Path to Kubeconfig."
-  type       = string
-}
-
-provider "kubernetes" {
-  config_path    = var.configpath
-  config_context = "default"
-}
-
 resource "kubernetes_namespace" "discordbot" {
   metadata {
-    name = "discordbot"
+    name = var.name
   }
 }
 
 resource "kubernetes_deployment" "discordbot" {
   metadata {
-    name      = "discordbot"
-    namespace = var.namespace
+    name      = var.name
+    namespace = kubernetes_namespace.discordbot.id
     labels = {
-      purpose = "discordbot"
+      purpose = var.name
     }
   }
 
@@ -40,22 +17,23 @@ resource "kubernetes_deployment" "discordbot" {
     replicas = "1"
     selector {
       match_labels = {
-        purpose = "discordbot"
+        purpose = var.name
       }
     }
     template {
       metadata {
-        name      = "discordbot"
-        namespace = var.namespace
+        name      = var.name
+        namespace = kubernetes_namespace.discordbot.id
         labels = {
-          purpose = "discordbot"
+          purpose = var.name
+          app     = var.name
         }
       }
       spec {
 
         container {
-          image = "aymon/hive.discordbot:latest"
-          name  = "discordbot"
+          image = "${var.containerimage}:${var.containerimageversion}"
+          name  = var.name
           resources {
             limits = {
               cpu    = "100m"
