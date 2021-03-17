@@ -14,8 +14,6 @@ import (
 	"github.com/dyatlov/go-htmlinfo/htmlinfo"
 )
 
-var gamestatus string
-
 // TODO Make bot command prefix setting configurable i.e. default "!", but may be overridden..
 
 // MessageCreate is called every time a new message is created on any channel that the authenticated bot has access to.
@@ -44,7 +42,7 @@ func MessageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		if strings.HasPrefix(m.Content, "!random") {
-			message := randomPlayer(session, m)
+			message := randomPlayer(m)
 			ChannelMessageSend(session, m.ChannelID, message)
 		}
 	}
@@ -63,7 +61,10 @@ func MessageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
 // AnswerHello answers the Hello command
 func AnswerHello(session *discordgo.Session, m *discordgo.MessageCreate) {
 
-	session.ChannelMessageSend(m.ChannelID, "Hello "+m.Author.Username)
+	response, err := session.ChannelMessageSend(m.ChannelID, "Hello "+m.Author.Username)
+	if err != nil {
+		log.Println("Error sending embedded message:", response, err)
+	}
 }
 
 // AnswerBgg answers the BGG command
@@ -86,17 +87,7 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 		if results.Total == "0" {
 			log.Println("No results found with exact search for " + searchString + ". Using non-exact search.")
 			results, searchURL = bgg.SearchItems(searchString, "boardgame", false)
-			resultsCount, _ := strconv.Atoi(results.Total)
-			switch resultsCount {
-			case 0:
-				log.Printf("0 Results.")
-			case 1:
-				log.Printf("1 Results.")
-			case 2:
-				log.Printf("2 Results")
-			default:
-				log.Printf(searchURL)
-			}
+			log.Printf(searchURL)
 		}
 
 		switch results.Total {
@@ -111,7 +102,10 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 				panic(err)
 			}
 
-			defer resp.Body.Close()
+			err = resp.Body.Close()
+			if err != nil {
+				log.Println("Error retrieving boardgame by gameID:", err)
+			}
 
 			info := htmlinfo.NewHTMLInfo()
 			// if url can be nil too, just then we won't be able to fetch (and generate) oembed information
@@ -142,7 +136,10 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 					panic(err)
 				}
 
-				defer resp.Body.Close()
+				err = resp.Body.Close()
+				if err != nil {
+					log.Println("Error retrieving boardgame by gameID:", err)
+				}
 
 				info := htmlinfo.NewHTMLInfo()
 				// if url can be nil too, just then we won't be able to fetch (and generate) oembed information
@@ -172,11 +169,11 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 // RandomPlayer generates a random number
-func randomPlayer(session *discordgo.Session, m *discordgo.MessageCreate) string {
+func randomPlayer(m *discordgo.MessageCreate) string {
 	var message string
 	parts := strings.Split(m.Content, " ")
 	if len(parts) != 2 {
-		message = (m.Author.Username + ", you should have a single number e.g. !random 3 ")
+		message = m.Author.Username + ", you should have a single number e.g. !random 3 "
 	} else {
 		max, _ := strconv.Atoi(parts[1])
 		// Choose random number between 1 and the given range
@@ -187,7 +184,10 @@ func randomPlayer(session *discordgo.Session, m *discordgo.MessageCreate) string
 }
 
 func ChannelMessageSend(session *discordgo.Session, channelID string, message string) {
-	session.ChannelMessageSend(channelID, message)
+	response, err := session.ChannelMessageSend(channelID, message)
+	if err != nil {
+		log.Println("Error sending embedded message:", response, err)
+	}
 }
 
 func channelMessageSendEmbed(session *discordgo.Session, channelID string, message *discordgo.MessageEmbed) {
