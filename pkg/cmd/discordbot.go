@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"bufio"
+	"html"
 	"log"
 	"math/rand"
 	"net/http"
@@ -78,14 +80,22 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 	case "find":
 		ChannelMessageSend(session, m.ChannelID, "Finding "+m.Author.Username)
 	case "search":
-		searchstring := strings.Join(parts[2:], "+")
-		exact := true
-		results, searchurl := bgg.SearchItems(searchstring, "boardgame", exact)
+		searchString := strings.Join(parts[2:], "+")
+		results, searchURL := bgg.SearchItems(searchString, "boardgame", true)
 		// If no results, then try again with exact set to false.
 		if results.Total == "0" {
-			log.Println("No results found with exact search for " + searchstring + ". Using non-exact search.")
-			if exact == true {
-				results, searchurl = bgg.SearchItems(searchstring, "boardgame", false)
+			log.Println("No results found with exact search for " + searchString + ". Using non-exact search.")
+			results, searchURL = bgg.SearchItems(searchString, "boardgame", false)
+			resultsCount, _ := strconv.Atoi(results.Total)
+			switch resultsCount {
+			case 0:
+				log.Printf("0 Results.")
+			case 1:
+				log.Printf("1 Results.")
+			case 2:
+				log.Printf("2 Results")
+			default:
+				log.Printf(searchURL)
 			}
 		}
 
@@ -121,15 +131,40 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 
 			channelMessageSendEmbed(session, m.ChannelID, &complexMessage)
 
-		case "2":
-			ChannelMessageSend(session, m.ChannelID, "Found "+results.Total+" results.")
 		default:
-			complexMessage := discordgo.MessageEmbed{
+			ChannelMessageSend(session, m.ChannelID, "Found "+results.Total+" results.")
+			for i, v := range results.Items {
+				log.Printf(strconv.Itoa(i))
+				gameID := v.ID
+				u := "https://boardgamegeek.com/boardgame/" + gameID
+				resp, err := http.Get(u)
+				if err != nil {
+					panic(err)
+				}
 
-				Title: "Found " + results.Total + " results.",
-				URL:   searchurl,
+				defer resp.Body.Close()
+
+				info := htmlinfo.NewHTMLInfo()
+				// if url can be nil too, just then we won't be able to fetch (and generate) oembed information
+				err = info.Parse(resp.Body, &u, nil)
+
+				if err != nil {
+					panic(err)
+				}
+
+				description := SplitLines(info.OGInfo.Description)
+				descriptionEscaped := html.UnescapeString(description[0])
+
+				complexMessage := discordgo.MessageEmbed{
+
+					Title:       info.OGInfo.Title,
+					Description: descriptionEscaped,
+					URL:         info.OGInfo.URL,
+					Thumbnail:   &discordgo.MessageEmbedThumbnail{URL: info.OGInfo.Images[0].URL},
+				}
+
+				channelMessageSendEmbed(session, m.ChannelID, &complexMessage)
 			}
-			channelMessageSendEmbed(session, m.ChannelID, &complexMessage)
 		}
 	default:
 		ChannelMessageSend(session, m.ChannelID, "Hello "+m.Author.Username)
@@ -161,4 +196,14 @@ func channelMessageSendEmbed(session *discordgo.Session, channelID string, messa
 	if err != nil {
 		log.Println("Error sending embedded message:", response, err)
 	}
+}
+
+// SplitLines splits lines
+func SplitLines(s string) []string {
+	var lines []string
+	sc := bufio.NewScanner(strings.NewReader(s))
+	for sc.Scan() {
+		lines = append(lines, sc.Text())
+	}
+	return lines
 }
