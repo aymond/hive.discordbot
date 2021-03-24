@@ -74,7 +74,7 @@ func main() {
 
 func ready(session *discordgo.Session, event *discordgo.Ready) {
 	// Set the bots status.
-	session.UpdateGameStatus(0, gamestatus)
+	_ = session.UpdateGameStatus(0, gamestatus)
 	Session = session
 }
 
