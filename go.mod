@@ -10,6 +10,7 @@ require (
 	github.com/dyatlov/go-opengraph v0.0.0-20210112100619-dae8665a5b09 // indirect
 	github.com/dyatlov/go-readability v0.0.0-20150926130635-e7b2080f87f8 // indirect
 	github.com/golang/protobuf v1.4.3
+	github.com/spf13/viper v1.7.1
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
 	golang.org/x/sys v0.0.0-20210220050731-9a76102bfb43 // indirect

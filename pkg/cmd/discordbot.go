@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"bufio"
+	"fmt"
+	"github.com/spf13/viper"
 	"html"
 	"log"
 	"math/rand"
@@ -18,11 +20,29 @@ import (
 
 // MessageCreate is called every time a new message is created on any channel that the authenticated bot has access to.
 func MessageCreate(session *discordgo.Session, m *discordgo.MessageCreate) {
-
 	// Ignore all messages that the bot itself creates
 	if m.Author.ID == session.State.User.ID {
 		return
 	}
+
+	// Load config defaults each time there is a bot command.
+	viper.SetDefault("hello", "Hi!")
+	viper.SetDefault("ping", "pong!")
+	// Load the standard responses mounted at /data/discordbot-config/
+	viper.SetConfigName("config.yaml")              // name of config file (without extension)
+	viper.SetConfigType("yaml")                     // REQUIRED if the config file does not have the extension in the name
+	viper.AddConfigPath("/data/discordbot-config/") // path to look for the config file in
+	viper.AddConfigPath("./configs/")               // optionally look for config in the working directory
+	err := viper.ReadInConfig()                     // Find and read the config file
+	if err != nil {                                 // Handle errors reading the config file
+		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	}
+	log.Printf(viper.GetString("version"))
+	viper.SetConfigName("version.yaml")
+	viper.AddConfigPath("/data/discordbot-config/") // path to look for the config file in
+	viper.AddConfigPath("./configs/")
+	err = viper.MergeInConfig() // Merge in the additional version config
+	log.Printf(viper.GetString("version"))
 
 	// Check just the first character for the bot command prefix. If bot command prefix is used, then check which command.
 	if strings.HasPrefix(m.Content, "!") {
@@ -83,49 +103,22 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 	case "search":
 		searchString := strings.Join(parts[2:], "+")
 		results, searchURL := bgg.SearchItems(searchString, "boardgame", true)
+
+		resultsCount, _ := strconv.Atoi(results.Total)
+
 		// If no results, then try again with exact set to false.
-		if results.Total == "0" {
+		if resultsCount == 0 {
 			log.Println("No results found with exact search for " + searchString + ". Using non-exact search.")
 			results, searchURL = bgg.SearchItems(searchString, "boardgame", false)
 			log.Printf(searchURL)
+			resultsCount, _ = strconv.Atoi(results.Total)
 		}
 
-		switch results.Total {
-		case "0":
-
+		if resultsCount == 0 {
 			ChannelMessageSend(session, m.ChannelID, "No results found.")
-		case "1":
-			gameID := results.Items[0].ID
-			u := "https://boardgamegeek.com/boardgame/" + gameID
-			resp, err := http.Get(u)
-			if err != nil {
-				panic(err)
-			}
+		}
 
-			err = resp.Body.Close()
-			if err != nil {
-				log.Println("Error retrieving boardgame by gameID:", err)
-			}
-
-			info := htmlinfo.NewHTMLInfo()
-			// if url can be nil too, just then we won't be able to fetch (and generate) oembed information
-			err = info.Parse(resp.Body, &u, nil)
-
-			if err != nil {
-				panic(err)
-			}
-
-			complexMessage := discordgo.MessageEmbed{
-
-				Title:       info.OGInfo.Title,
-				Description: info.OGInfo.Description,
-				URL:         info.OGInfo.URL,
-				Thumbnail:   &discordgo.MessageEmbedThumbnail{URL: info.OGInfo.Images[0].URL},
-			}
-
-			channelMessageSendEmbed(session, m.ChannelID, &complexMessage)
-
-		default:
+		if resultsCount >= 1 && resultsCount <= 6 {
 			ChannelMessageSend(session, m.ChannelID, "Found "+results.Total+" results.")
 			for i, v := range results.Items {
 				log.Printf(strconv.Itoa(i))
@@ -136,17 +129,17 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 					panic(err)
 				}
 
-				err = resp.Body.Close()
-				if err != nil {
-					log.Println("Error retrieving boardgame by gameID:", err)
-				}
-
 				info := htmlinfo.NewHTMLInfo()
 				// if url can be nil too, just then we won't be able to fetch (and generate) oembed information
 				err = info.Parse(resp.Body, &u, nil)
 
 				if err != nil {
 					panic(err)
+				}
+
+				err = resp.Body.Close()
+				if err != nil {
+					log.Println("Error retrieving boardgame by gameID:", err)
 				}
 
 				description := SplitLines(info.OGInfo.Description)
@@ -163,6 +156,11 @@ func AnswerBgg(session *discordgo.Session, m *discordgo.MessageCreate) {
 				channelMessageSendEmbed(session, m.ChannelID, &complexMessage)
 			}
 		}
+
+		if resultsCount > 6 {
+			ChannelMessageSend(session, m.ChannelID, "Found "+results.Total+" results.")
+		}
+
 	default:
 		ChannelMessageSend(session, m.ChannelID, "Hello "+m.Author.Username)
 	}
