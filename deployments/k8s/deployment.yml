@@ -30,17 +30,4 @@ spec:
         secretKeyRef:
           name: discordbottoken
           key: token
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  labels:
-    purpose: discordbot
-data:
-  commands.yaml: |
-    ping: pong
-    hello: Hi!
-    version: v0.0.4
-  version.yaml: |
-    version: v0.0.4
-    \n
+
