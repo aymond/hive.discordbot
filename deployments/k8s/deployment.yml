@@ -26,7 +26,10 @@ spec:
     image: aymon/hive.discordbot:v0.0.4
     env:
     - name: TOKEN
-      value: "${DISCORDBOTTOKEN}"
+      valueFrom:
+        secretKeyRef:
+          name: discordbottoken
+          key: token
 ---
 apiVersion: v1
 kind: ConfigMap
