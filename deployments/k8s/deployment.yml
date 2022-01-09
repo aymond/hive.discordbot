@@ -23,7 +23,7 @@ spec:
       limits:
         memory: "20Mi"
         cpu: "100m"
-    image: aymon/hive.discordbot:v0.0.4
+    image: aymon/hive.discordbot:v0.0.5
     env:
     - name: TOKEN
       valueFrom:
